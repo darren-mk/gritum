@@ -61,6 +61,7 @@ The codebase is expected to reflect idiomatic Clojure, but not at the cost of ap
 
 ## Project Structure (Tentative)
 
+```text
 gritum/
 ├── src/
 │ └── gritum/
@@ -75,6 +76,7 @@ gritum/
 ├── Dockerfile
 ├── deps.edn
 └── README.md
+```
 
 This structure is expected to evolve as requirements become clearer.
 
