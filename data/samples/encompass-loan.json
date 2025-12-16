@@ -1,0 +1,78 @@
+{
+    "loanId": "LN-2024-000123",
+    "applicationDate": "2024-11-01",
+
+    "borrowers": [
+        {
+            "role": "Primary",
+            "firstName": "John",
+            "lastName": "Doe"
+        }
+    ],
+
+    "property": {
+        "street": "123 Main St",
+        "city": "San Jose",
+        "state": "CA",
+        "zip": "95131",
+        "purchasePrice": 850000
+    },
+
+    "loan": {
+        "purpose": "Purchase",
+        "loanType": "Conventional",
+        "interestRate": 6.375,
+        "loanAmount": 680000,
+        "termMonths": 360,
+        "amortizationType": "Fixed"
+    },
+
+    "fees": [
+        {
+            "id": "F-A-01",
+            "leSection": "A",
+            "description": "Origination Charge",
+            "amount": 2500.00,
+            "paidBy": "Borrower",
+            "isLenderRequired": true,
+            "borrowerCanShop": false,
+            "usedProviderFromList": null
+        },
+        {
+            "id": "F-B-01",
+            "leSection": "B",
+            "description": "Appraisal Fee",
+            "amount": 750.00,
+            "paidBy": "Borrower",
+            "isLenderRequired": true,
+            "borrowerCanShop": false,
+            "usedProviderFromList": null
+        },
+        {
+            "id": "F-C-01",
+            "leSection": "C",
+            "description": "Title – Settlement Fee",
+            "amount": 1200.00,
+            "paidBy": "Borrower",
+            "isLenderRequired": true,
+            "borrowerCanShop": true,
+            "usedProviderFromList": true
+        },
+        {
+            "id": "F-E-01",
+            "leSection": "E",
+            "description": "Recording Fees",
+            "amount": 225.00,
+            "paidBy": "Borrower",
+            "isLenderRequired": true,
+            "borrowerCanShop": false,
+            "usedProviderFromList": null
+        }
+    ],
+
+    "disclosures": {
+        "loanEstimateIssued": "2024-11-02",
+        "closingDisclosureIssued": "2024-11-20",
+        "closingDate": "2024-12-01"
+    }
+}
