@@ -1,5 +1,7 @@
 module Gritum.Model
 
+open System
+
 type Money =
     private Money of decimal
 
@@ -50,9 +52,13 @@ type Finding =
 type Findings =
     Finding list
 
-type DocumentSnapshot =
-    { documentType : DocumentType
+type DocumentContent =
+    { effectiveDate : DateOnly option
       totalClosingCosts : Money option }
+
+type DocumentSnapshot =
+    | LE of DocumentContent
+    | CD of DocumentContent
 
 type PrecheckInput =
     { loan : Loan

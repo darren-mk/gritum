@@ -4,19 +4,11 @@ open Xunit
 open Gritum.Model
 open Gritum.Evaluator
 open Gritum.Rules
-open Helper
+open Samples
 
 // --------------------
 // Test fixtures
 // --------------------
-
-let mkLoan () : Loan =
-    { id = LoanId "fake-loan-id"
-      purpose = Purchase }
-
-let mkInput (snaps: DocumentSnapshot list) : PrecheckInput =
-    { loan = mkLoan ()
-      documentSnapshots = snaps }
 
 let findingHigh : Finding =
     { ruleId = RuleId "F-High"
@@ -71,20 +63,11 @@ let ``summarizeStatus - errors override findings`` () =
 [<Fact>]
 let ``runRules - missing totalClosingCosts yields Inconclusive and two MissingField errors`` () =
     let input =
-        mkInput
-            [ { documentType = LoanEstimate
-                totalClosingCosts = None }
-              { documentType = LoanEstimate
-                totalClosingCosts = Some (money 123.44m) }
-              { documentType = ClosingDisclosure
-                totalClosingCosts = None } ]
-
+        mkInput [ leDocWoTcc; leDocWiTcc; cdDocWoTcc ]
     let findings, errors, status =
         runRules input all
-
     Assert.Equal(PrecheckStatus.Inconclusive, status)
     Assert.Empty(findings)
-
     Assert.Equal(2, errors.Length)
     Assert.Contains(MissingField LoanEstimate, errors)
     Assert.Contains(MissingField ClosingDisclosure, errors)
@@ -92,18 +75,10 @@ let ``runRules - missing totalClosingCosts yields Inconclusive and two MissingFi
 [<Fact>]
 let ``runRules - all totalClosingCosts present yields Clear and no errors`` () =
     let snapshots =
-        [ { documentType = LoanEstimate
-            totalClosingCosts = Some (money 32.41m) }
-          { documentType = LoanEstimate
-            totalClosingCosts = Some (money 153.47m) }
-          { documentType = ClosingDisclosure
-            totalClosingCosts = Some (money 63.12m) } ]
-
+        [ leDocWiTcc; leDocWiTcc; cdDocWiTcc ]
     let input = mkInput snapshots
-
     let findings, errors, status =
         runRules input all
-
     Assert.Equal(PrecheckStatus.Clear, status)
     Assert.Empty(findings)
     Assert.Empty(errors)
@@ -119,13 +94,10 @@ let mkRule (id: string) (check: PrecheckInput -> RuleCheckResult) : Rule =
 [<Fact>]
 let ``runRules - High finding yields Critical`` () =
     let input = mkInput []
-
     let rules : Rules =
         [ mkRule "R1" (fun _ -> Ok (Some findingHigh)) ]
-
     let findings, errors, status =
         runRules input rules
-
     Assert.Equal(PrecheckStatus.Critical, status)
     Assert.Empty(errors)
     Assert.Single(findings)
@@ -133,13 +105,10 @@ let ``runRules - High finding yields Critical`` () =
 [<Fact>]
 let ``runRules - Low finding yields Advisory`` () =
     let input = mkInput []
-
     let rules : Rules =
         [ mkRule "R1" (fun _ -> Ok (Some findingLow)) ]
-
     let findings, errors, status =
         runRules input rules
-
     Assert.Equal(PrecheckStatus.Advisory, status)
     Assert.Empty(errors)
     Assert.Single(findings)
@@ -147,14 +116,11 @@ let ``runRules - Low finding yields Advisory`` () =
 [<Fact>]
 let ``runRules - mixed Low and High yields Critical`` () =
     let input = mkInput []
-
     let rules : Rules =
         [ mkRule "R1" (fun _ -> Ok (Some findingLow))
           mkRule "R2" (fun _ -> Ok (Some findingHigh)) ]
-
     let findings, errors, status =
         runRules input rules
-
     Assert.Equal(PrecheckStatus.Critical, status)
     Assert.Empty(errors)
     Assert.Equal(2, findings.Length)
@@ -162,14 +128,11 @@ let ``runRules - mixed Low and High yields Critical`` () =
 [<Fact>]
 let ``runRules - any rule error yields Inconclusive even if findings exist`` () =
     let input = mkInput []
-
     let rules : Rules =
         [ mkRule "R1" (fun _ -> Ok (Some findingHigh))
           mkRule "R2" (fun _ -> Error [ MissingField LoanEstimate ]) ]
-
     let findings, errors, status =
         runRules input rules
-
     Assert.Equal(PrecheckStatus.Inconclusive, status)
     Assert.NotEmpty(findings)
     Assert.Single(errors) |> ignore
