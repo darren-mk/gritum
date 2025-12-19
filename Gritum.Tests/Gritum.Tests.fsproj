@@ -7,6 +7,13 @@
 
   <ItemGroup>
     <Compile Include="Tests.fs" />
+    <Compile Include="Helper.fs" />
+    <Compile Include="RulesTests.fs" />
+    <Compile Include="EvaluatorTests.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Gritum\Gritum.fsproj" />
   </ItemGroup>
 
   <ItemGroup>

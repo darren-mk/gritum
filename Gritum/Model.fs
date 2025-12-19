@@ -47,6 +47,9 @@ type Finding =
       evidence : Evidence list
       message : string }
 
+type Findings =
+    Finding list
+
 type DocumentSnapshot =
     { documentType : DocumentType
       totalClosingCosts : Money option }
@@ -70,6 +73,12 @@ type RuleErrors =
 type RuleCheckResult =
     Result<Finding option, RuleErrors>
 
+type RuleCheckResults =
+    RuleCheckResult list
+
 type Rule =
     { id : RuleId
       check : PrecheckInput -> RuleCheckResult }
+
+type Rules =
+    Rule list
