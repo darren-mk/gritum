@@ -6,7 +6,9 @@ type Money =
     private Money of decimal
 
 module Money =
-    let create (x:decimal) : Result<Money, string> =
+    let create (x: decimal) : Money =
+        Money x
+    let createNonNegative (x: decimal) : Result<Money, string> =
         if x >= 0m then Ok (Money x)
         else Error "Money must be non-negative"
     let value (Money (x: decimal)) = x
@@ -69,9 +71,14 @@ type InvalidReason =
     | ParseFailure
     | OutOfRange
 
+type FieldName =
+    | EffectiveDate
+    | TotalClosingCosts
+
 type RuleError =
-    | MissingField of DocumentType
-    | InvalidField of DocumentType * InvalidReason
+    | MissingDocument of DocumentType
+    | MissingField of DocumentType * FieldName
+    | InvalidField of DocumentType * FieldName * InvalidReason
 
 type RuleErrors =
     RuleError list
@@ -82,9 +89,12 @@ type RuleCheckResult =
 type RuleCheckResults =
     RuleCheckResult list
 
+type Check =
+    PrecheckInput -> RuleCheckResult
+
 type Rule =
     { id : RuleId
-      check : PrecheckInput -> RuleCheckResult }
+      check : Check }
 
 type Rules =
     Rule list

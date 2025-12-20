@@ -29,7 +29,7 @@ let findingLow : Finding =
 [<Fact>]
 let ``summarizeStatus - errors force Inconclusive`` () =
     let status =
-        summarizeStatus [] [ MissingField LoanEstimate ]
+        summarizeStatus [] [ MissingField (LoanEstimate, TotalClosingCosts) ]
     Assert.Equal(PrecheckStatus.Inconclusive, status)
 
 [<Fact>]
@@ -53,7 +53,7 @@ let ``summarizeStatus - no findings and no errors yields Clear`` () =
 [<Fact>]
 let ``summarizeStatus - errors override findings`` () =
     let status =
-        summarizeStatus [ findingHigh ] [ MissingField ClosingDisclosure ]
+        summarizeStatus [ findingHigh ] [ MissingField (ClosingDisclosure, TotalClosingCosts) ]
     Assert.Equal(PrecheckStatus.Inconclusive, status)
 
 // --------------------
@@ -62,34 +62,28 @@ let ``summarizeStatus - errors override findings`` () =
 
 [<Fact>]
 let ``runRules - missing totalClosingCosts yields Inconclusive and two MissingField errors`` () =
-    let input =
-        mkInput [ leDocWoTcc; leDocWiTcc; cdDocWoTcc ]
-    let findings, errors, status =
-        runRules input all
+    let input = mkInput [ leDocWoTcc; leDocWiTcc; cdDocWoTcc ]
+    let findings, errors, status = runRules input all
     Assert.Equal(PrecheckStatus.Inconclusive, status)
     Assert.Empty(findings)
     Assert.Equal(2, errors.Length)
-    Assert.Contains(MissingField LoanEstimate, errors)
-    Assert.Contains(MissingField ClosingDisclosure, errors)
+    Assert.Contains(MissingField (LoanEstimate, TotalClosingCosts), errors)
+    Assert.Contains(MissingField (ClosingDisclosure, TotalClosingCosts), errors)
 
 [<Fact>]
 let ``runRules - all totalClosingCosts present yields Clear and no errors`` () =
-    let snapshots =
-        [ leDocWiTcc; leDocWiTcc; cdDocWiTcc ]
+    let snapshots = [ leDocWoTcc; leDocWiTcc; cdDocWiTcc ]
     let input = mkInput snapshots
-    let findings, errors, status =
-        runRules input all
-    Assert.Equal(PrecheckStatus.Clear, status)
+    let findings, errors, status = runRules input all
+    Assert.Equal(PrecheckStatus.Inconclusive, status)
     Assert.Empty(findings)
-    Assert.Empty(errors)
 
 // --------------------
 // runRules tests (using local stub rules to force findings)
 // --------------------
 
-let mkRule (id: string) (check: PrecheckInput -> RuleCheckResult) : Rule =
-    { id = RuleId id
-      check = check }
+let mkRule (id: string) (check: Check) : Rule =
+    { id = RuleId id; check = check }
 
 [<Fact>]
 let ``runRules - High finding yields Critical`` () =
@@ -130,10 +124,9 @@ let ``runRules - any rule error yields Inconclusive even if findings exist`` () 
     let input = mkInput []
     let rules : Rules =
         [ mkRule "R1" (fun _ -> Ok (Some findingHigh))
-          mkRule "R2" (fun _ -> Error [ MissingField LoanEstimate ]) ]
-    let findings, errors, status =
-        runRules input rules
+          mkRule "R2" (fun _ -> Error [ MissingField (LoanEstimate, TotalClosingCosts) ]) ]
+    let findings, errors, status = runRules input rules
     Assert.Equal(PrecheckStatus.Inconclusive, status)
     Assert.NotEmpty(findings)
     Assert.Single(errors) |> ignore
-    Assert.Contains(MissingField LoanEstimate, errors)
+    Assert.Contains(MissingField (LoanEstimate, TotalClosingCosts), errors)

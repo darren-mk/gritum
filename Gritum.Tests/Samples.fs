@@ -1,7 +1,6 @@
 module Samples
 
 open Gritum.Model
-open Helper
 
 let leDocWoTcc =
     LE { effectiveDate = None
@@ -9,7 +8,7 @@ let leDocWoTcc =
 
 let leDocWiTcc =
     LE { effectiveDate = None
-         totalClosingCosts = Some (money 123.44m) }
+         totalClosingCosts = Some (Helper.money 123.44m) }
 
 let cdDocWoTcc =
     CD { effectiveDate = None
@@ -17,7 +16,7 @@ let cdDocWoTcc =
 
 let cdDocWiTcc =
     CD { effectiveDate = None
-         totalClosingCosts = Some (money 123.44m) }
+         totalClosingCosts = Some (Helper.money 123.44m) }
 
 let purchaseLoan =
     { id = LoanId "fake-loan-id"
