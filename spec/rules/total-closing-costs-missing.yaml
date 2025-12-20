@@ -1,0 +1,22 @@
+schema: tridprecheck.rule.v1
+
+id: total-closing-costs-missing
+title: Total closing costs are missing
+
+category: presence
+documents:
+  - LoanEstimate
+  - ClosingDisclosure
+scope: single-document
+
+status: draft
+
+description: >
+  The Total Closing Costs field must be present on both the Loan Estimate
+  and Closing Disclosure. If the value is missing, the document cannot
+  be evaluated for closing cost accuracy.
+
+tags:
+  - closing-costs
+  - fees
+  - tcc

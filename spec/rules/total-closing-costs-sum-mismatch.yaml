@@ -1,0 +1,23 @@
+schema: tridprecheck.rule.v1
+
+id: total-closing-costs-sum-mismatch
+title: Total closing costs do not equal sum of fee line items
+
+category: arithmetic
+documents:
+  - LoanEstimate
+  - ClosingDisclosure
+scope: single-document
+
+status: draft
+
+description: >
+  The reported Total Closing Costs amount must equal the sum of all
+  individual closing cost fee line items, within an acceptable rounding
+  tolerance. A mismatch indicates missing, duplicated, or misclassified fees.
+
+tags:
+  - closing-costs
+  - fees
+  - tcc
+  - arithmetic
