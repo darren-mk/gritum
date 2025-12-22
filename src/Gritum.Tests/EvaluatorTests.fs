@@ -1,11 +1,10 @@
-module EvaluatorTests
+module Gritum.Evaluator.Tests
 
 open Xunit
 open Gritum.Model
 open Gritum.Evaluator
-open Gritum.Rules
 open Gritum.Generated.RuleSpec
-open Samples
+open Gritum.TestHelper
 
 let findingHigh : Finding =
     { ruleId = RuleId.TotalClosingCostsSumMismatch

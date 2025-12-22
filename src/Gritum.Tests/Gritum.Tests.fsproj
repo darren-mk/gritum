@@ -11,9 +11,7 @@
 
   <ItemGroup>
     <Compile Include="Helper.fs" />
-    <Compile Include="Samples.fs" />
-    <Compile Include="Tests.fs" />
-    <Compile Include="RulesTests.fs" />
+    <Compile Include="Rules/Impl/*.fs" />
     <Compile Include="EvaluatorTests.fs" />
   </ItemGroup>
 

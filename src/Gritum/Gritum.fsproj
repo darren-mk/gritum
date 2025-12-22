@@ -6,7 +6,8 @@
   <ItemGroup>
     <Compile Include="Generated/RuleSpec.fs" />
     <Compile Include="Model.fs" />
-    <Compile Include="Rules.fs" />
+    <Compile Include="Rules/Impl/*.fs" />
+    <Compile Include="Rules/Registry.fs" />
     <Compile Include="Evaluator.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
