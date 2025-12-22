@@ -2,15 +2,16 @@ module Gritum.Rules
 
 open System
 open Gritum.Model
+open Gritum.Generated.RuleSpec
 
 // -----------------
 // Rule implementations
 // -----------------
 
-let totalClosingCostsRuleId = RuleId "TCC-001"
+let totalClosingCostsRuleId = RuleId.TotalClosingCostsSumMismatch
 
-let selectEffectiveLE (snapshots: DocumentSnapshot list) : DocumentContent option =
-    let pick (best: DocumentContent option) (snapshot: DocumentSnapshot) =
+let selectEffectiveLE snapshots : DocumentContent option =
+    let pick best snapshot =
         match best, snapshot with
         | _, CD _ -> best
         | None, LE (c: DocumentContent) ->

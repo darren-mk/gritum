@@ -1,6 +1,7 @@
 module Gritum.Model
 
 open System
+open Gritum.Generated.RuleSpec
 
 type Money =
     private Money of decimal
@@ -35,8 +36,6 @@ type PrecheckStatus =
 type Severity =
     | Low
     | High
-
-type RuleId = RuleId of string
 
 type DocumentType =
     | LoanEstimate
