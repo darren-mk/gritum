@@ -2,7 +2,6 @@
   (:require
    [camel-snake-kebab.core :as csk]
    [clojure.string :as cstr]
-   [malli.util :as mu]
    [gritum.extract :as ext]))
 
 (def Xml
@@ -30,9 +29,12 @@
 (def Timing
   [:enum :at-closing :before-closing])
 
+(def Money
+  [:and :double [:>= 0]])
+
 (def Payment
   [:map
-   [:amount [:and :double [:>= 0]]]
+   [:amount Money]
    [:payer StakeholderKind]
    [:timing Timing]
    [:meta {:optional true} :map]])
@@ -46,6 +48,9 @@
    [:payee Payee]
    [:payments [:vector Payment]]
    [:meta {:optional true} :map]])
+
+(def Fees
+  [:sequential Fee])
 
 (defn ->payment
   {:malli/schema [:=> [:cat Xml] Payment]}
@@ -74,7 +79,8 @@
         section-str (->> [:IntegratedDisclosureSectionType] (ext/traverse detail) first)
         section (or (some-> section-str csk/->kebab-case-keyword) :unknown-section)
         fee-item-type-node (->> [:EXTENSION :OTHER :ucd:FEE_DETAIL_EXTENSION]
-                                (ext/traverse detail) first)
+                                (ext/traverse detail)
+                                (filter #(= :ucd:FeeItemType (:tag %))) first)
         category-str (-> fee-item-type-node :content first)
         category (or (some-> category-str csk/->kebab-case-keyword) :unknown-category)
         label (or (-> fee-item-type-node :attrs :DisplayLabelText) category-str)
