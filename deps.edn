@@ -1,3 +1,5 @@
-{:paths ["src" "test" "resources"]
- :deps {org.clojure/data.xml {:mvn/version "0.0.8"}
+{:paths ["src" "test" "dev" "resources"]
+ :deps {camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.3"}
+        metosin/malli {:mvn/version "0.20.0"}
+        org.clojure/data.xml {:mvn/version "0.0.8"}
         org.clojure/data.zip {:mvn/version "1.1.0"}}}

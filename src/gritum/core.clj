@@ -1,6 +1,6 @@
 (ns gritum.core)
 
-#_#_#_#_#_
+#_#_#_
 (defmulti normalize
   (fn [_ k] k))
 
@@ -31,24 +31,3 @@
         fees (traverse loan [:FEE_INFORMATION :FEES])]
     {:fees (mapv #(normalize % :fee) fees)}))
 
-(defn all-unique? [coll]
-  (= (count coll)
-     (count (distinct coll))))
-
-(defn xml->edn
-  "connect by tag and content, ignore attrs"
-  [xml]
-  (prn xml)
-  (cond (nil? xml) nil
-        (map? xml) {(:tag xml) (xml->edn (:content xml))}
-        (seq? xml) (xml->edn (apply vector xml))
-        (vector? xml) (cond (= 1 (count xml))
-                            (let [fst (first xml)
-                                  calc (xml->edn (first xml))]
-                              (if (:tag fst) [calc] calc))
-                            (all-unique? (map :tag xml))
-                            (reduce (fn [a {:keys [tag content]}]
-                                      (assoc a tag (xml->edn content))) {} xml)
-                            :else (mapv xml->edn xml))
-        (contains? #{"true" "false"} xml) (read-string xml)
-        :else xml))
