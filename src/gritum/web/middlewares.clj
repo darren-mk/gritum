@@ -33,3 +33,19 @@
            :body {:error (if (= status 500) "Internal Server Error" "Client Error")
                   :message (.getMessage e)
                   :type (.getSimpleName (class e))}})))))
+
+(defn wrap-cors
+  "In production, replace * with your domain"
+  [handler]
+  (let [headers
+        {"Access-Control-Allow-Origin" "*"
+         "Access-Control-Allow-Methods"
+         "GET, POST, PUT, DELETE, OPTIONS"
+         "Access-Control-Allow-Headers" "Content-Type, Authorization"}]
+    (fn [req]
+      (if (= (:request-method req) :options)
+        {:status 200 :headers headers :body ""}
+        (let [resp (handler req)]
+          (if resp
+            (update resp :headers merge headers)
+            resp))))))

@@ -37,6 +37,7 @@
     routes
     {:data {:middleware [mw/inject-headers-in-resp
                          mw/turn-resp-body-to-bytes
+                         mw/wrap-cors
                          mw/wrap-exception
                          wrap-params
                          wrap-multipart-params]}})))
