@@ -1,0 +1,33 @@
+(ns gritum.web.core
+  (:gen-class)
+  (:require
+   [integrant.core :as ig]
+   [org.httpkit.server :as http]
+   [gritum.web.router :as router]
+   [taoensso.timbre :as log]))
+
+(def config
+  {:gritum.web/app {}
+   :gritum.web/server
+   {:port 8000
+    :handler (ig/ref :gritum.web/app)}})
+
+(defmethod ig/init-key :gritum.web/app [_ _]
+  (log/info "Initializing Web Router...")
+  router/app)
+
+(defmethod ig/init-key :gritum.web/server [_ {:keys [handler port]}]
+  (log/info "Starting HTTP server on port:" port)
+  (http/run-server handler {:port port}))
+
+(defmethod ig/halt-key! :gritum.web/server [_ stop-fn]
+  (log/info "Stopping HTTP server...")
+  (stop-fn :timeout 100))
+
+(defn -main
+  [& _args]
+  (let [system (ig/init config)]
+    (.addShutdownHook
+     (Runtime/getRuntime)
+     (Thread. #(ig/halt! system)))
+    (log/info "Gritum Web is running.")))

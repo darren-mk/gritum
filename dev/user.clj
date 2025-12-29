@@ -1,14 +1,22 @@
 (ns user
   (:require
+   [integrant.repl :refer [set-prep! go halt reset]]
+   [gritum.web.core :as w]
    [malli.dev :as mdev]
    [malli.dev.pretty :as pretty]))
 
 (defn inst! []
-  (mdev/start! {:report (pretty/reporter)}))
+  (mdev/start!
+   {:report (pretty/reporter)}))
 
 (defn unst! []
   (mdev/stop!))
 
+(set-prep! (fn [] w/config))
+
 (comment
   (inst!)
-  (unst!))
+  (unst!)
+  (go)
+  (halt)
+  (reset))
