@@ -1,25 +1,41 @@
 (ns gritum.web.router
   (:require
    [reitit.ring :as ring]
-   [reitit.ring.middleware.multipart :as multipart]
-   [gritum.web.views :as views]
-   [gritum.evaluate :as eval]
-   [clojure.data.xml :as xml]))
+   [gritum.core :as core]
+   [gritum.web.middlewares :as mw]
+   [ring.middleware.multipart-params :refer [wrap-multipart-params]]
+   [ring.middleware.params :refer [wrap-params]]))
+
+(defn- handle-health [_]
+  {:status 200
+   :body {:status "up"
+          :version core/version
+          :timestamp (.toString (java.time.Instant/now))}})
 
 (defn- handle-evaluate [req]
   (let [params (:multipart-params req)
-        ;; Process uploaded files
-        le-xml (xml/parse-str (slurp (get-in params ["le-file" :tempfile])))
-        cd-xml (xml/parse-str (slurp (get-in params ["cd-file" :tempfile])))
-        ;; Core logic call
-        report (eval/perform le-xml cd-xml)]
-    {:status 200
-     :body (views/evaluation-result report)}))
+        le-file (get params "le-file")
+        cd-file (get params "cd-file")]
+    (if (and le-file cd-file)
+      (let [le-str (slurp (:tempfile le-file))
+            cd-str (slurp (:tempfile cd-file))
+            report (core/evaluate-xml le-str cd-str)]
+        {:status 200 :body report})
+      {:status 400
+       :body {:error "Missing files"
+              :details "le-file and cd-file are required"}})))
+
+(def routes
+  ["/api"
+   ["/v1"
+    ["/health" {:get handle-health}]
+    ["/evaluate" {:post handle-evaluate}]]])
 
 (def app
   (ring/ring-handler
    (ring/router
-    [""
-     ["/" {:get (fn [_] {:status 200 :body (views/home-page)})}]
-     ["/evaluate" {:post handle-evaluate}]
-     {:data {:middleware [multipart/create-multipart-middleware]}}])))
+    routes
+    {:data {:middleware [wrap-params
+                         wrap-multipart-params
+                         mw/inject-headers-in-resp
+                         mw/turn-resp-body-to-bytes]}})))
