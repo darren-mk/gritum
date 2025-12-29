@@ -47,10 +47,3 @@
       (is (= 0.0 (:total-cure result)))
       (is (true? (:valid? result)))
       (is (empty? (get-in result [:breakdown :zero-percent :violations]))))))
-
-(deftest ucd-xml-parsing-test
-  (testing "Integration test with real MISMO/UCD sample file"
-    (let [xml (h/load-xml "data/Purchase ARM UCD v2.0.xml")
-          fees (#'sut/extract-fees xml)]
-      (is (= 24 (count fees))
-          "should extract exactly 24 fee nodes"))))

@@ -28,7 +28,6 @@
 (defn ->edn
   "connect by tag and content, ignore attrs"
   [xml]
-  (prn xml)
   (cond (nil? xml) nil
         (map? xml) {(:tag xml) (->edn (:content xml))}
         (seq? xml) (->edn (apply vector xml))

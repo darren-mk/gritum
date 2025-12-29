@@ -23,8 +23,12 @@
    :services-not-shop
    :services-shop
    :taxes :prepaids
+   :taxes-and-other-government-fees
+   :services-borrower-did-shop-for
+   :services-borrower-did-not-shop-for
    :initial-escrow
-   :other-costs])
+   :other-costs
+   :unknown-section])
 
 (def Timing
   [:enum :at-closing :before-closing])
@@ -51,6 +55,18 @@
 
 (def Fees
   [:sequential Fee])
+
+(def LenderCredit
+  [:map
+   [:amount Money]
+   [:cure-amount Money]
+   [:section-type :keyword]
+   [:subsection-type :keyword]])
+
+(def Document
+  [:map
+   [:fees Fees]
+   [:lender-credit LenderCredit]])
 
 (defn ->payment
   {:malli/schema [:=> [:cat Xml] Payment]}
@@ -83,7 +99,7 @@
                                 (filter #(= :ucd:FeeItemType (:tag %))) first)
         category-str (-> fee-item-type-node :content first)
         category (or (some-> category-str csk/->kebab-case-keyword) :unknown-category)
-        label (or (-> fee-item-type-node :attrs :DisplayLabelText) category-str)
+        label (or (-> fee-item-type-node :attrs :DisplayLabelText) category-str "unknown label")
         id (str (name section) "_" (name category))]
     {:id id
      :section section
@@ -92,3 +108,65 @@
      :payee {:name payee-name
              :kind payee-kind}
      :payments payments}))
+
+(defn ->lender-credit
+  "Maps a INTEGRATED_DISCLOSURE_SECTION_SUMMARY node to a LenderCredit record."
+  {:malli/schema [:=> [:cat :any] LenderCredit]}
+  [lender-credit-xml]
+  (let [section-type (some->> [:IntegratedDisclosureSectionType]
+                              (ext/traverse lender-credit-xml)
+                              first csk/->kebab-case-keyword)
+        subsection-type (some->> [:IntegratedDisclosureSubsectionType]
+                                 (ext/traverse lender-credit-xml)
+                                 first csk/->kebab-case-keyword)
+        amount (or (some->> [:IntegratedDisclosureSectionTotalAmount]
+                            (ext/traverse lender-credit-xml)
+                            first parse-double) 0.0)
+        cure (or (some->> [:LenderCreditToleranceCureAmount]
+                          (ext/traverse lender-credit-xml)
+                          first parse-double) 0.0)]
+    {:amount amount
+     :cure-amount cure
+     :section-type section-type
+     :subsection-type subsection-type}))
+
+(def path-to-fees
+  [:MESSAGE :DOCUMENT_SETS :DOCUMENT_SET
+   :DOCUMENTS :DOCUMENT :DEAL_SETS :DEAL_SET :DEALS
+   :DEAL :LOANS :LOAN :FEE_INFORMATION :FEES])
+
+(defn extract-fees
+  "Locates all FEE nodes within the
+  deeply nested MISMO/UCD structure."
+  {:malli/schema [:=> [:cat Xml] Fees]}
+  [xml]
+  (->> path-to-fees
+       (ext/traverse xml)
+       (filter #(= :FEE (:tag %)))
+       (mapv ->fee)))
+
+(def path-to-idss
+  [:MESSAGE :DOCUMENT_SETS :DOCUMENT_SET :DOCUMENTS :DOCUMENT
+   :DEAL_SETS :DEAL_SET :DEALS :DEAL :LOANS :LOAN
+   :DOCUMENT_SPECIFIC_DATA_SETS
+   :DOCUMENT_SPECIFIC_DATA_SET
+   :INTEGRATED_DISCLOSURE
+   :INTEGRATED_DISCLOSURE_SECTION_SUMMARIES])
+
+(defn extract-lender-credit
+  "Locates all FEE nodes within the
+  deeply nested MISMO/UCD structure."
+  {:malli/schema [:=> [:cat Xml] LenderCredit]}
+  [xml]
+  (some->> path-to-idss (ext/traverse xml)
+           (map #(ext/traverse % [:INTEGRATED_DISCLOSURE_SECTION_SUMMARY
+                                  :INTEGRATED_DISCLOSURE_SECTION_SUMMARY_DETAIL]))
+           (filter #(= ["LenderCredits"]
+                       (ext/traverse % [:IntegratedDisclosureSubsectionType])))
+           first ->lender-credit))
+
+(defn ->document
+  {:malli/schema [:=> [:cat Xml] Document]}
+  [xml]
+  {:fees (extract-fees xml)
+   :lender-credit (extract-lender-credit xml)})
