@@ -1,8 +1,8 @@
-(ns gritum.domain-test
+(ns gritum.engine.domain-test
   (:require
    [clojure.test :refer [deftest is testing]]
-   [gritum.domain :as sut]
-   [gritum.test-helper :as h]
+   [gritum.engine.domain :as sut]
+   [gritum.engine.test-helper :as h]
    [malli.core :as m]
    [malli.generator :as mg]))
 

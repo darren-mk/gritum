@@ -1,8 +1,8 @@
-(ns gritum.rules.zero-percent-tolerance
+(ns gritum.engine.rules.zero-percent-tolerance
   "Defines items subject to the 0% tolerance rule.
    These items cannot increase from LE to CD at all."
   (:require
-   [gritum.domain :as dom]))
+   [gritum.engine.domain :as dom]))
 
 (def ^:private zero-percent-sections
   #{:origination-charges :services-not-shop})

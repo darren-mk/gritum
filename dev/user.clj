@@ -1,7 +1,7 @@
 (ns user
   (:require
    [integrant.repl :refer [set-prep! go halt reset]]
-   [gritum.web.core :as w]
+   [gritum.engine.api.core :as w]
    [malli.dev :as mdev]
    [malli.dev.pretty :as pretty]))
 

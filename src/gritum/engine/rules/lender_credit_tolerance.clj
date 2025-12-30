@@ -1,7 +1,7 @@
-(ns gritum.rules.lender-credit-tolerance
+(ns gritum.engine.rules.lender-credit-tolerance
   "Implementation of the 0% tolerance rule for Lender Credits.
    A violation occurs if the total credit amount decreases from LE to CD."
-  (:require [gritum.domain :as dom]))
+  (:require [gritum.engine.domain :as dom]))
 
 (defn- calculate-total-credit
   "Calculates the total lender credit by summing the summary

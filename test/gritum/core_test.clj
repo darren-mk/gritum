@@ -1,1 +1,0 @@
-(ns gritum.core-test)

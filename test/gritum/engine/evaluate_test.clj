@@ -1,8 +1,9 @@
-(ns gritum.evaluate-test
+(ns gritum.engine.evaluate-test
   (:require
    [clojure.test :refer [deftest is testing]]
-   [gritum.evaluate :as sut]
-   [gritum.test-helper :as h]))
+   [gritum.engine.domain :as domain]
+   [gritum.engine.evaluate :as sut]
+   [gritum.engine.test-helper :as h]))
 
 (defn- mock-fee
   "Generates a mock FEE node for testing."
@@ -25,13 +26,13 @@
   (testing "Combined evaluation of 0% and 10% tolerance rules"
     (let [le-fees [(mock-fee :origination-charges :admin-fee 500.0 "a")
                    (mock-fee :services-shop :title-search 1000.0 "b")]
-          le-xml  (h/populate-xml le-fees sut/path-to-fees)
+          le-xml  (h/populate-xml le-fees domain/path-to-fees)
           ;; CD: 0% increases by 50 (Cure 50), 10% increases by 150 (Total 1150)
           ;; 10% Rule: 1000 * 1.1 = 1100 threshold. 1150 - 1100 = 50 cure.
           ;; Expected Total Cure = 50 + 50 = 100.
           cd-fees [(mock-fee :origination-charges :admin-fee 550.0 "a")
                    (mock-fee :services-shop :title-search 1150.0 "b")]
-          cd-xml  (h/populate-xml cd-fees sut/path-to-fees)
+          cd-xml  (h/populate-xml cd-fees domain/path-to-fees)
           result (sut/perform le-xml cd-xml)]
       (is (= 100.0 (:total-cure result))
           "Total cure should sum both 0% and 10% violations")

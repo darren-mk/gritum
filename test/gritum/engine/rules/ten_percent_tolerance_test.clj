@@ -1,7 +1,7 @@
-(ns gritum.rules.ten-percent-tolerance-test
+(ns gritum.engine.rules.ten-percent-tolerance-test
   (:require
    [clojure.test :refer [deftest testing is]]
-   [gritum.rules.ten-percent-tolerance :as sut]))
+   [gritum.engine.rules.ten-percent-tolerance :as sut]))
 
 (defn- make-test-fee [section category amount]
   {:id (str (name section) "_" (name category))

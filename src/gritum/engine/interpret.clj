@@ -1,4 +1,4 @@
-(ns gritum.interpret)
+(ns gritum.engine.interpret)
 
 (def loan-path
   [:MESSAGE :DOCUMENT_SETS

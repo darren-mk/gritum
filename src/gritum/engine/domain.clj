@@ -1,8 +1,8 @@
-(ns gritum.domain
+(ns gritum.engine.domain
   (:require
    [camel-snake-kebab.core :as csk]
    [clojure.string :as cstr]
-   [gritum.extract :as ext]))
+   [gritum.engine.extract :as ext]))
 
 (def Xml
   [:map

@@ -1,4 +1,4 @@
-(ns gritum.test-helper
+(ns gritum.engine.test-helper
   (:require
    [clojure.edn :as edn]
    [clojure.data.xml :as xml]

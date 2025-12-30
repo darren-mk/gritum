@@ -1,8 +1,8 @@
-(ns gritum.web.router
+(ns gritum.engine.api.router
   (:require
    [reitit.ring :as ring]
-   [gritum.core :as core]
-   [gritum.web.middlewares :as mw]
+   [gritum.engine.core :as core]
+   [gritum.engine.api.middlewares :as mw]
    [ring.middleware.multipart-params :refer [wrap-multipart-params]]
    [ring.middleware.params :refer [wrap-params]]))
 

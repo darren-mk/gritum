@@ -1,4 +1,4 @@
-(ns gritum.web.views
+(ns gritum.engine.api.views
   (:require
    [hiccup.page :refer [html5 include-js include-css]]))
 
