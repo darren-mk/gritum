@@ -8,5 +8,5 @@
     ;; This inner function is executed for every request.
     ;; Currently a mock implementation, but can be
     ;; seamlessly replaced with (jdbc/execute! db [...]) later.
-    (let [mock-db #{"bitem-test-key" "gritum-secret-token"}]
+    (let [mock-db #{"gritum-api-test-key"}]
       (contains? mock-db api-key))))
