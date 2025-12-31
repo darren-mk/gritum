@@ -25,19 +25,20 @@
        :body {:error "Missing files"
               :details "le-file and cd-file are required"}})))
 
-(def routes
-  ["/api"
-   ["/v1"
-    ["/health" {:get handle-health}]
-    ["/evaluate" {:post handle-evaluate}]]])
+(defn app [{:keys [auth-fn]}]
+  (let [auth-mw (mw/wrap-api-key-auth auth-fn)]
+    (ring/ring-handler
+     (ring/router
+      ["/api"
+       ["/health" {:get handle-health}]
+       ["/v1"
+        {:middleware [auth-mw]}
+        ["/evaluate" {:post handle-evaluate}]]]
+      {:data {:middleware [mw/wrap-exception
+                           mw/wrap-api-cors
+                           mw/inject-headers-in-resp
+                           mw/turn-resp-body-to-bytes
+                           wrap-params
+                           wrap-multipart-params]}}))))
 
-(def app
-  (ring/ring-handler
-   (ring/router
-    routes
-    {:data {:middleware [mw/inject-headers-in-resp
-                         mw/turn-resp-body-to-bytes
-                         mw/wrap-cors
-                         mw/wrap-exception
-                         wrap-params
-                         wrap-multipart-params]}})))
+

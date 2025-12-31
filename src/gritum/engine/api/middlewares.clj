@@ -34,18 +34,26 @@
                   :message (.getMessage e)
                   :type (.getSimpleName (class e))}})))))
 
-(defn wrap-cors
-  "In production, replace * with your domain"
-  [handler]
-  (let [headers
-        {"Access-Control-Allow-Origin" "*"
-         "Access-Control-Allow-Methods"
-         "GET, POST, PUT, DELETE, OPTIONS"
-         "Access-Control-Allow-Headers" "Content-Type, Authorization"}]
+(defn wrap-api-cors [handler]
+  (let [headers {"Access-Control-Allow-Origin"
+                 "*"
+                 "Access-Control-Allow-Methods"
+                 "GET, POST, PUT, DELETE, OPTIONS"
+                 "Access-Control-Allow-Headers"
+                 "Content-Type, Authorization, x-api-key"}]
     (fn [req]
       (if (= (:request-method req) :options)
         {:status 200 :headers headers :body ""}
         (let [resp (handler req)]
-          (if resp
-            (update resp :headers merge headers)
-            resp))))))
+          (if resp (update resp :headers merge headers) resp))))))
+
+(defn wrap-api-key-auth [check-fn]
+  (fn [handler]
+    (fn [req]
+      (let [api-key (get-in req [:headers "x-api-key"])]
+        (if (and api-key (check-fn api-key))
+          (handler req)
+          {:status 401
+           :body {:error "Unauthorized"}})))))
+
+

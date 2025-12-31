@@ -3,6 +3,7 @@
   (:require
    [integrant.core :as ig]
    [org.httpkit.server :as http]
+   [gritum.engine.auth :as auth]
    [gritum.engine.api.router :as router]
    [taoensso.timbre :as log]))
 
@@ -11,20 +12,29 @@
    (or (System/getenv "PORT") "3000")))
 
 (def config
-  {:gritum.web/app {}
-   :gritum.web/server
+  {:gritum.engine.api/auth {}
+   :gritum.engine.api/app
+   {:auth-fn (ig/ref :gritum.engine.api/auth)}
+   :gritum.engine.api/server
    {:port (get-port)
-    :handler (ig/ref :gritum.web/app)}})
+    :handler (ig/ref :gritum.engine.api/app)}})
 
-(defmethod ig/init-key :gritum.web/app [_ _]
+(defmethod ig/init-key :gritum.engine.api/auth
+  [_ _]
+  (auth/create-auth-service {}))
+
+(defmethod ig/init-key :gritum.engine.api/app
+  [_ {:keys [_auth-fn] :as injection}]
   (log/info "Initializing Web Router...")
-  router/app)
+  (router/app injection))
 
-(defmethod ig/init-key :gritum.web/server [_ {:keys [handler port]}]
+(defmethod ig/init-key :gritum.engine.api/server
+  [_ {:keys [handler port]}]
   (log/info "Starting HTTP server on port:" port)
   (http/run-server handler {:port port}))
 
-(defmethod ig/halt-key! :gritum.web/server [_ stop-fn]
+(defmethod ig/halt-key! :gritum.engine.api/server
+  [_ stop-fn]
   (log/info "Stopping HTTP server...")
   (stop-fn :timeout 100))
 
