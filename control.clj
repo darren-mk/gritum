@@ -15,11 +15,14 @@
   "us-east1")
 
 (defn config []
-  (let [project-id (->> "gcloud config get-value project"
-                        (b/shell {:out :string})
-                        :out cstr/trim)
+  (let [project-id
+        (->> "gcloud config get-value project"
+             (b/shell {:out :string})
+             :out cstr/trim)
         image-name "gritum-engine"
         tag "latest"]
+    (assert (= (str "bitem-gritum-" (name env))
+               project-id))
     {:env env
      :project-id project-id
      :image-name image-name
@@ -47,8 +50,11 @@
              "--set-env-vars" (str "GRITUM_ENV=" (name env))
              "--allow-unauthenticated")))
 
-(let [cfg (config)]
+(let [cfg (config)
+      msg (str "*" (name action) "*"
+               " job is done. 🚀")]
   (case action
+    :check (println cfg)
     :build (build)
     :image (image cfg)
     :register (register cfg)
@@ -57,4 +63,4 @@
              (image cfg)
              (register cfg)
              (deploy cfg)))
-  (println (name action) " job done 🚀"))
+  (println msg))
