@@ -7,3 +7,5 @@ obj
 .nrepl-port
 *.xml
 target/
+infra/
+config.edn

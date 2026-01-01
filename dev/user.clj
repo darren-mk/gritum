@@ -1,9 +1,12 @@
 (ns user
   (:require
-   [integrant.repl :refer [set-prep! go halt reset]]
+   [integrant.repl :as ir]
    [gritum.engine.api.core :as w]
+   [gritum.engine.db.migrate :as mig]
    [malli.dev :as mdev]
    [malli.dev.pretty :as pretty]))
+
+(ir/set-prep! (fn [] w/config))
 
 (defn inst []
   (mdev/start!
@@ -12,11 +15,27 @@
 (defn unst []
   (mdev/stop!))
 
-(set-prep! (fn [] w/config))
+(defn go []
+  (inst)
+  (ir/go))
+
+(defn halt []
+  (ir/halt))
+
+(defn rego []
+  (ir/reset))
+
+(defn create-mig [s]
+  (mig/create :local s))
+
+(defn run-mig []
+  (mig/run :local))
 
 (comment
   (inst)
   (unst)
   (go)
   (halt)
-  (reset))
+  (rego)
+  (create-mig "some-name")
+  (run-mig))

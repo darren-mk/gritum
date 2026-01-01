@@ -52,17 +52,24 @@
              "--set-env-vars" (str "GRITUM_ENV=" (name env))
              "--allow-unauthenticated")))
 
-(let [cfg (config)
-      msg (str "*" (name action) "*"
-               " job is done. 🚀")]
+(defn migrate []
+  (b/shell "clojure" "-M:migrate"))
+
+(defn ->msg [action]
+  (str "*" (name action) "*"
+       " job is done. 🚀"))
+
+(let [cfg (config)]
   (case action
     :check (println cfg)
+    :migrate (migrate)
     :build (build)
     :image (image cfg)
     :register (register cfg)
     :deploy (deploy cfg)
-    :all (do (build)
+    :all (do (migrate)
+             (build)
              (image cfg)
              (register cfg)
              (deploy cfg)))
-  (println msg))
+  (println (->msg action)))
