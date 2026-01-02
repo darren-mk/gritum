@@ -9,7 +9,7 @@
   (let [{:keys [db migration]} (get (inf/->config) env)]
     (if db {:store :database
             :migration-dir (:dir migration)
-            :db db}
+            :db (assoc db :user (:username db))}
         (throw (ex-info "no config found" {:env env})))))
 
 (defn create

@@ -11,7 +11,7 @@
   [:map
    [:dbtype [:enum "postgresql"]]
    [:dbname :string]
-   [:user [:enum "gritum_admin"]]
+   [:username [:enum "gritum_admin"]]
    [:password :string]
    [:host :string]
    [:port [:enum 5432]]])
