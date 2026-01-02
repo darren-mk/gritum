@@ -1,7 +1,9 @@
 (ns gritum.engine.api.middlewares
   (:require
+   [gritum.engine.db.api-key :as db.api-key]
    [jsonista.core :as json]
-   [taoensso.timbre :as log]))
+   [taoensso.timbre :as log]
+   [ring.util.http-response :as resp]))
 
 (defn inject-headers-in-resp [handler]
   (let [m {"Content-Type"
@@ -47,13 +49,10 @@
         (let [resp (handler req)]
           (if resp (update resp :headers merge headers) resp))))))
 
-(defn wrap-api-key-auth
-  {:malli/schema [:=> [:cat :boolean :any] :any]}
-  [prod? check-fn]
+(defn wrap-api-key-auth [ds]
   (fn [handler]
-    (fn [req]
-      (let [api-key (get-in req [:headers "x-api-key"])]
-        (if (and api-key (check-fn prod? api-key))
-          (handler req)
-          {:status 401
-           :body {:error "Unauthorized"}})))))
+    (fn [request]
+      (let [api-key (get-in request [:headers "x-api-key"])]
+        (if-let [key-info (and api-key (db.api-key/verify! ds api-key))]
+          (handler (assoc request :identity key-info))
+          (resp/unauthorized {:error "Invalid or missing API key"}))))))

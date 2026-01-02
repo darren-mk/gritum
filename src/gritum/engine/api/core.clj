@@ -3,7 +3,6 @@
   (:require
    [integrant.core :as ig]
    [org.httpkit.server :as http]
-   [gritum.engine.auth :as auth]
    [gritum.engine.api.router :as router]
    [gritum.engine.db.core]
    [gritum.engine.infra :as inf]
@@ -13,20 +12,11 @@
   (:port (inf/->context)))
 
 (def config
-  {:gritum.engine.db/pool
-   (->> (inf/->context) :env
-        (get (inf/->config)) :db)
-   :gritum.engine.api/auth {}
-   :gritum.engine.api/app
-   {:prod? (inf/prod?)
-    :auth-fn (ig/ref :gritum.engine.api/auth)}
-   :gritum.engine.api/server
-   {:port (get-port)
-    :handler (ig/ref :gritum.engine.api/app)}})
-
-(defmethod ig/init-key :gritum.engine.api/auth
-  [_ _]
-  (auth/create-auth-service {}))
+  {:gritum.engine.db/pool (->> (inf/->context) :env
+                               (get (inf/->config)) :db)
+   :gritum.engine.api/app {:ds (ig/ref :gritum.engine.db/pool)}
+   :gritum.engine.api/server {:port (get-port)
+                              :handler (ig/ref :gritum.engine.api/app)}})
 
 (defmethod ig/init-key :gritum.engine.api/app
   [_ injection]
