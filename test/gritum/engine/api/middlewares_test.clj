@@ -22,13 +22,13 @@
   (testing "should convert Map body into JSON byte array"
     (let [data {:foo "bar"}
           mock-handler (fn [_] {:status 200 :body data})
-          middleware (sut/turn-resp-body-to-bytes mock-handler)
+          middleware (sut/write-body mock-handler)
           response (middleware {})]
       (is (bytes? (:body response)))
       (is (= data (json/read-value (:body response) json/keyword-keys-object-mapper)))))
   (testing "should return response as is if body is missing"
     (let [mock-handler (fn [_] {:status 204})
-          middleware (sut/turn-resp-body-to-bytes mock-handler)
+          middleware (sut/write-body mock-handler)
           response (middleware {})]
       (is (not (contains? response :body)))
       (is (= 204 (:status response))))))

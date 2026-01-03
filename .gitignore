@@ -10,3 +10,4 @@ target/
 infra/
 config.edn
 context.edn
+cookies.txt

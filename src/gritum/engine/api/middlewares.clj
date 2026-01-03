@@ -1,9 +1,16 @@
 (ns gritum.engine.api.middlewares
   (:require
+   [clojure.string :as cstr]
    [gritum.engine.db.api-key :as db.api-key]
    [jsonista.core :as json]
    [taoensso.timbre :as log]
+   [ring.middleware.session :as ses]
+   [ring.middleware.session.memory :as smem]
    [ring.util.http-response :as resp]))
+
+(def json-mapper
+  (json/object-mapper
+   {:decode-key-fn true}))
 
 (defn inject-headers-in-resp [handler]
   (let [m {"Content-Type"
@@ -14,7 +21,20 @@
           (update resp :headers merge m)
           resp)))))
 
-(defn turn-resp-body-to-bytes [handler]
+(defn read-body [handler]
+  (fn [{:keys [content-type request-method] :as request}]
+    (if (and (= request-method :post)
+             (cstr/starts-with? (or content-type "")
+                                "application/json"))
+      (let [body-str (slurp (:body request))
+            json-params (if-not (empty? body-str)
+                          (json/read-value body-str json-mapper)
+                          {})
+            new-request (assoc request :body json-params)]
+        (handler new-request))
+      (handler request))))
+
+(defn write-body [handler]
   (let [f #(json/write-value-as-bytes
             % json/default-object-mapper)]
     (fn [req]
@@ -56,3 +76,13 @@
         (if-let [key-info (and api-key (db.api-key/verify! ds api-key))]
           (handler (assoc request :identity key-info))
           (resp/unauthorized {:error "Invalid or missing API key"}))))))
+
+(def session-options
+  {:store (smem/memory-store)
+   :cookie-name "bitem-session"
+   :cookie-attrs {:http-only true
+                  :secure false ; 개발 환경(HTTP)에서는 false, 프로덕션(HTTPS)은 true
+                  :same-site :lax}})
+
+(defn wrap-session [handler]
+  (ses/wrap-session handler session-options))
