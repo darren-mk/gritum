@@ -1,6 +1,7 @@
 (ns gritum.engine.db.api-key
   (:require
    [clojure.string :as cstr]
+   [next.jdbc.result-set :as rs]
    [next.jdbc.sql :as sql]
    [buddy.hashers :as hs]
    [crypto.random :as random]
@@ -53,10 +54,11 @@
 (defn list-by-client
   {:malli/schema [:=> [:cat :any :uuid] [:sequential :any]]}
   [ds client-id]
-  (sql/query ds ["SELECT key_id, created_at, usage_count, usage_limit 
-                  FROM api_key
-                  WHERE client_id = ? 
-                  ORDER BY created_at DESC" client-id]))
+  (sql/query ds [(str "SELECT key_id, created_at, usage_count, usage_limit "
+                      "FROM api_key WHERE client_id = ? "
+                      "ORDER BY created_at DESC")
+                 client-id]
+             {:builder-fn rs/as-unqualified-maps}))
 
 (comment
   (require

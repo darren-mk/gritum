@@ -12,6 +12,29 @@
 (def StakeholderKind
   [:enum :buyer :seller :lender])
 
+(def Email
+  [:re {:error/message "not correct email format"}
+   #"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"])
+
+(def Client
+  [:map
+   [:id :uuid]
+   [:email Email]
+   [:password_hash {:optional true} :string]
+   [:created_at inst?]])
+
+(def ApiKey
+  [:map
+   [:id :uuid]
+   [:key_id :string]
+   [:client_id :uuid]
+   [:raw_key {:optional true} :string]
+   [:hashed_key {:optional true} :string]
+   [:usage_count pos-int?]
+   [:usage_limit pos-int?]
+   [:is_active :boolean]
+   [:created_at inst?]])
+
 (def Payee
   [:map
    [:name :string]

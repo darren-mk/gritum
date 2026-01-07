@@ -1,14 +1,17 @@
 (ns gritum.engine.api.router
   (:require
-   [reitit.ring :as ring]
    [gritum.engine.api.middlewares :as mw]
    [gritum.engine.core :as core]
    [gritum.engine.db.client :as db.client]
    [gritum.engine.db.api-key :as db.api-key]
+   [reitit.coercion.malli :as rcmal]
+   [reitit.ring :as ring]
+   [reitit.openapi :as openapi]
    [ring.middleware.multipart-params :as multp]
    [ring.middleware.params :as midp]
    [ring.util.http-response :as resp]
-   [taoensso.timbre :as log]))
+   [taoensso.timbre :as log]
+   [gritum.engine.domain :as dom]))
 
 (defn- handle-health [_]
   {:status 200
@@ -34,9 +37,8 @@
     (let [{:keys [email password]} body
           client (db.client/authenticate ds email password)]
       (if client
-        (-> (resp/ok {:message "Login successful"
-                      :user (:client/name client)})
-            (assoc :session {:identity (:client/id client)}))
+        (-> (resp/ok client)
+            (assoc :session {:identity (:id client)}))
         (resp/unauthorized {:error "Invalid email or password"})))))
 
 (defn logout-handler [_req]
@@ -47,9 +49,9 @@
   (fn [{:keys [body] :as _req}]
     (let [{:keys [email password]} body]
       (try
-        (let [new-client (db.client/register! ds email password)]
+        (let [{:keys [email]} (db.client/register! ds email password)]
           (resp/ok {:message "Account created successfully"
-                    :email (:client/email new-client)}))
+                    :email email}))
         (catch Exception e
           (log/error "Signup failed:" (.getMessage e))
           (resp/bad-request {:error "Signup failed"
@@ -66,9 +68,9 @@
 (defn create-api-key-handler [ds]
   (fn [req]
     (if-let [client-id (get-in req [:session :identity])]
-      (let [new-key (db.api-key/create! ds client-id)
+      (let [raw-key (db.api-key/create! ds client-id)
             msg "API key created successfully. Please save it now."]
-        (resp/ok {:api_key new-key
+        (resp/ok {:api_key raw-key
                   :message msg}))
       (resp/unauthorized))))
 
@@ -76,26 +78,38 @@
   (fn [req]
     (if-let [client-id (get-in req [:session :identity])]
       (let [api-keys (db.api-key/list-by-client ds client-id)]
-        (resp/ok {:api-keys api-keys}))
+        (resp/ok api-keys))
       (resp/unauthorized))))
 
 (defn app [{:keys [ds]}]
   (let [auth-mw (mw/wrap-api-key-auth ds)]
     (ring/ring-handler
      (ring/router
-      ["/api"
-       ["/health" {:get handle-health}]
-       ["/services"  {:middleware [auth-mw]}
-        ["/v1"
-         ["/ping" {:get pong-handler}]
-         ["/evaluate" {:post evaluate-handler}]]]
-       ["/dashboard" {:middleware [mw/wrap-session]}
-        ["/signup" {:post (signup-handler ds)}]
-        ["/login" {:post (login-handler ds)}]
-        ["/api-keys" {:get (list-api-keys-handler ds)
-                      :post (create-api-key-handler ds)}]
-        ["/logout" {:post logout-handler}]
-        ["/me" {:get me-handler}]]]
+      [["/openapi.json"
+        {:get {:no-doc true
+               :handler (openapi/create-openapi-handler)}}]
+       ["/api" {:coercion rcmal/coercion}
+        ["/health" {:get handle-health}]
+        ["/services" {:middleware [auth-mw]}
+         ["/v1"
+          ["/ping" {:get {:responses {200 {:body [:map [:message :string]]}}
+                          :handler pong-handler}}]
+          ["/evaluate" {:post evaluate-handler}]]]
+        ["/dashboard" {:middleware [mw/wrap-session]}
+         ["/signup" {:post {:summary "create client and return email with message"
+                            :responses {200 {:body [:map [:message :string] [:email dom/Email]]}}
+                            :handler (signup-handler ds)}}]
+         ["/login" {:post {:summary "log in as client"
+                           :responses {200 {:body dom/Client}}
+                           :handler (login-handler ds)}}]
+         ["/api-keys" {:get {:summary "returns api keys for the client"
+                             :responses {200 {:body [:sequential dom/ApiKey]}}
+                             :handler (list-api-keys-handler ds)}
+                       :post {:summary "create a api key for the client"
+                              :response {200 {:body [:map [:message :string [:api_key :string]]]}}
+                              :handler (create-api-key-handler ds)}}]
+         ["/logout" {:post logout-handler}]
+         ["/me" {:get me-handler}]]]]
       {:data {:middleware [mw/wrap-exception
                            mw/wrap-api-cors
                            mw/inject-headers-in-resp
