@@ -47,9 +47,9 @@
 
 (defn signup-handler [ds]
   (fn [{:keys [body] :as _req}]
-    (let [{:keys [email password]} body]
+    (let [{:keys [email password full_name]} body]
       (try
-        (let [{:keys [email]} (db.client/register! ds email password)]
+        (let [{:keys [email]} (db.client/register! ds email password full_name)]
           (resp/ok {:message "Account created successfully"
                     :email email}))
         (catch Exception e

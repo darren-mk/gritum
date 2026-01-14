@@ -8,10 +8,10 @@
 (defn register!
   {:malli/schema [:=> [:cat :any dom/Email :string]
                   [:maybe dom/Client]]}
-  [ds email raw-password]
+  [ds email raw-pw-str full_name]
   (->> {:email email
-        :password_hash
-        (hs/derive raw-password)}
+        :password_hash (hs/derive raw-pw-str)
+        :full_name full_name}
        (sql/insert! ds :client)))
 
 (defn get-by-email
@@ -36,7 +36,7 @@
   (require
    '[integrant.repl.state :as irs])
   (let [ds (:gritum.engine.db/pool irs/system)]
-    (register! ds "test1@email.com" "raw-pw"))
+    (register! ds "test1@email.com" "raw-pw" "John Doe"))
   (let [ds (:gritum.engine.db/pool irs/system)]
     (get-by-email ds "test2@gritum.io"))
   (let [ds (:gritum.engine.db/pool irs/system)]
