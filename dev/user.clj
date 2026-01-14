@@ -26,10 +26,10 @@
   (ir/reset))
 
 (defn create-mig [s]
-  (mig/create :local s))
+  (mig/create s))
 
 (defn run-mig []
-  (mig/run :local))
+  (mig/run))
 
 (comment
   (inst)

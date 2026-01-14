@@ -21,6 +21,7 @@
    [:id :uuid]
    [:email Email]
    [:password_hash {:optional true} :string]
+   [:full_name :string]
    [:created_at inst?]])
 
 (def ApiKey
