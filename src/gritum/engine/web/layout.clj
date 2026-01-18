@@ -1,18 +1,18 @@
 (ns gritum.engine.web.layout
   (:require
-   [hiccup2.core :as h]))
+   [hiccup2.core :as h]
+   [gritum.engine.web.components.navbar :as navbar]))
 
 (defn base [title content]
-  (h/raw
-   (str
-    "<!DOCTYPE html>"
-    (h/html
-     [:html {:lang "en"}
-      [:head
-       [:meta {:charset "UTF-8"}]
-       [:title title]
-       [:script {:src "https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"}]
-       [:script {:type :module
-                 :src "https://cdn.jsdelivr.net/gh/starfederation/datastar@1.0.0-RC.7/bundles/datastar.js"}]]
-      [:body {:class "bg-slate-50"}
-       content]]))))
+  (h/html
+   (h/raw "<!DOCTYPE html>")
+   [:html {:lang "en"}
+    [:head
+     [:meta {:charset "UTF-8"}]
+     [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0"}]
+     [:title title]
+     [:script {:src "https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"}]]
+    [:body {:class "bg-white"}
+     (navbar/basic nil)
+     [:div {:class ["pt-16" "min-h-screen"]}
+      content]]]))
