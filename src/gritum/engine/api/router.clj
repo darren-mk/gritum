@@ -4,7 +4,12 @@
    [gritum.engine.core :as core]
    [gritum.engine.db.client :as db.client]
    [gritum.engine.db.api-key :as db.api-key]
+   [gritum.engine.web.pages.dashboard :as pg.dashboard]
    [gritum.engine.web.pages.docs :as pg.docs]
+   [gritum.engine.web.pages.home :as pg.home]
+   [gritum.engine.web.pages.login :as pg.login]
+   [gritum.engine.web.pages.pricing :as pg.pricing]
+   [gritum.engine.web.pages.signup :as pg.signup]
    [reitit.coercion.malli :as rcmal]
    [reitit.ring :as ring]
    [reitit.openapi :as openapi]
@@ -84,7 +89,12 @@
      (ring/router
       [["" {:middleware [mw/content-type-html
                          mw/wrap-hiccup]}
-        ["/docs" {:get pg.docs/handler}]]
+        ["/" {:get pg.home/handler}]
+        ["/docs" {:get pg.docs/handler}]
+        ["/login" {:get pg.login/handler}]
+        ["/pricing" {:get pg.pricing/handler}]
+        ["/signup" {:get pg.signup/handler}]
+        ["/dashboard" {:get pg.dashboard/handler}]]
        ["/openapi.json"
         {:get {:no-doc true
                :handler (openapi/create-openapi-handler)}}]
