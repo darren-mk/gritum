@@ -19,14 +19,24 @@
   (Integer/parseInt (bring! "PORT")))
 
 (defn get-db-config []
-  (let [user (bring! "DB_USER")]
-    {:dbtype (bring! "DB_TYPE")
-     :dbname (bring! "DB_NAME")
-     :host (bring! "DB_HOST")
-     :port (Integer/parseInt (bring! "DB_PORT"))
-     :user user
-     :username user
-     :password (bring! "DB_PASSWORD")}))
+  (let [user (bring! "DB_USER")
+        password (bring! "DB_PASSWORD")
+        dbname (bring! "DB_NAME")
+        host (bring! "DB_HOST")
+        dbtype (bring! "DB_TYPE")]
+    (if (str/starts-with? host "/cloudsql/")
+      (let [instance-name (str/replace host "/cloudsql/" "")]
+        {:jdbcUrl (str "jdbc:postgresql:///" dbname
+                       "?user=" user
+                       "&password=" password
+                       "&socketFactory=" "com.google.cloud.sql.postgres.SocketFactory"
+                       "&cloudSqlInstance=" instance-name)})
+      {:dbtype dbtype
+       :dbname dbname
+       :host host
+       :port (Integer/parseInt (bring! "DB_PORT"))
+       :user user
+       :password password})))
 
 (defn get-llm-config []
   {:ai-api-key (bring! "LLM_API_KEY")
