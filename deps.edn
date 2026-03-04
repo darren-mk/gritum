@@ -25,7 +25,8 @@
         metosin/reitit {:mvn/version "0.9.2"}
         metosin/ring-http-response {:mvn/version "0.9.5"}}
  :aliases
- {:run {:main-opts ["-m" "gritum.engine.api.core"]}
-  :build {:deps {io.github.clojure/tools.build {:git/tag "v0.10.11" :git/sha "c6c670a"}}
+ {:run {:main-opts ["-m" "gritum.api.core"]}
+  :build {:deps {io.github.clojure/tools.build
+                 {:git/tag "v0.10.11" :git/sha "c6c670a"}}
           :ns-default build}
-  :migrate {:main-opts ["-m" "gritum.engine.db.migrate"]}}}
+  :migrate {:main-opts ["-m" "gritum.db.migrate"]}}}

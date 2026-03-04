@@ -17,7 +17,7 @@ The rule applies to fees paid to the creditor, the mortgage broker, or their aff
 | **Section E** | Taxes and Other Government Fees | Transfer Taxes |
 
 ## 4. Engine Validation Logic
-The `gritum.engine.rules.zero-tolerance` namespace should implement the following logic:
+The `gritum.rules.zero-tolerance` namespace should implement the following logic:
 1.  **Selection**: Filter all items where `section == "A"`.
 2.  **Semantic Match**: Link LE items to CD items based on description similarity.
 3.  **Variance Calculation**:
