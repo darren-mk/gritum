@@ -5,26 +5,26 @@
    [org.httpkit.server :as http]
    [gritum.engine.api.router :as router]
    [gritum.engine.db.core]
-   [gritum.engine.configs :as configs]
+   [gritum.engine.config :as config]
    [taoensso.timbre :as log]))
 
 (defn system-config []
-  {:gritum.engine.db/pool (configs/get-db-config)
-   :gritum.engine.api/app {:ds (ig/ref :gritum.engine.db/pool)}
-   :gritum.engine.api/server {:port (configs/get-port)
-                              :handler (ig/ref :gritum.engine.api/app)}})
+  {:db/sql (config/psql-cfg)
+   :web/handler {:db/sql (ig/ref :db/sql)}
+   :web/server {:web/port (config/port)
+                :web/handler (ig/ref :web/handler)}})
 
-(defmethod ig/init-key :gritum.engine.api/app
-  [_ injection]
+(defmethod ig/init-key :web/handler
+  [_ {db-sql :db/sql}]
   (log/info "Initializing Web Router...")
-  (router/app injection))
+  (router/app db-sql))
 
-(defmethod ig/init-key :gritum.engine.api/server
-  [_ {:keys [handler port]}]
+(defmethod ig/init-key :web/server
+  [_ {:keys [web/handler web/port]}]
   (log/info "Starting HTTP server on port:" port)
   (http/run-server handler {:port port}))
 
-(defmethod ig/halt-key! :gritum.engine.api/server
+(defmethod ig/halt-key! :web/server
   [_ stop-fn]
   (log/info "Stopping HTTP server...")
   (stop-fn :timeout 100))
@@ -36,4 +36,4 @@
      (Runtime/getRuntime)
      (Thread. #(ig/halt! system)))
     (log/info "gritum engine is running on port "
-              (configs/get-port))))
+              (config/port))))

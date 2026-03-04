@@ -2,7 +2,7 @@
   (:require
    [camel-snake-kebab.core :as csk]
    [clojure.string :as cstr]
-   [gritum.engine.configs :as configs]
+   [gritum.engine.config :as configs]
    [gritum.engine.domain.model :as model :refer [Side Costs]]
    [gritum.engine.external.llm :as llm]
    [gritum.engine.external.utils :as eut]))
@@ -73,9 +73,9 @@
     (->costs side items)))
 
 (comment
-  (let [{:keys [ai-api-key ai-model]} (configs/get-llm-config)]
+  (let [{:keys [ai-api-key ai-model]} (configs/llm-cfg)]
     (proceed! ai-api-key ai-model :le "data/le-a.pdf"))
   [{:section :a, :category :application-fee, :description "Application Fees", :amount 300.0, :side :le}]
-  (let [{:keys [ai-api-key ai-model]} (configs/get-llm-config)]
+  (let [{:keys [ai-api-key ai-model]} (configs/llm-cfg)]
     (proceed! ai-api-key ai-model :cd "data/cd-a.pdf"))
   [{:section :a, :category :application-fee, :description "App fees", :amount 320.0, :side :cd}])

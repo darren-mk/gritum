@@ -46,9 +46,9 @@
 (comment
   (require
    '[integrant.repl.state :as irs])
-  (let [ds (:gritum.engine.db/pool irs/system)]
+  (let [ds (:db/sql irs/system)]
     (register! ds "test1@email.com" "raw-pw" "John Doe"))
-  (let [ds (:gritum.engine.db/pool irs/system)]
+  (let [ds (:db/sql irs/system)]
     (get-by-email ds "test2@gritum.io"))
-  (let [ds (:gritum.engine.db/pool irs/system)]
+  (let [ds (:db/sql irs/system)]
     (authenticate ds "test2@gritum.io" "raw-pw")))

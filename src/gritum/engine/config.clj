@@ -1,10 +1,12 @@
-(ns gritum.engine.configs
+(ns gritum.engine.config
+  "Collection of function providing config data. 
+  Functions that prepare and return a map are named with suffix `-cfg`."
   (:require [clojure.string :as str]))
 
 (def Env
   [:enum :prod :local])
 
-(defn- bring! [k]
+(defn- on! [k]
   (let [v (System/getenv k)]
     (if (str/blank? v)
       (let [msg (str "🚨 CRITICAL CONFIG ERROR: Environment variable '"
@@ -12,18 +14,18 @@
         (throw (ex-info msg {:variable k})))
       v)))
 
-(defn get-env []
-  (keyword (bring! "GRITUM_ENV")))
+(defn env []
+  (keyword (on! "GRITUM_ENV")))
 
-(defn get-port []
-  (Integer/parseInt (bring! "PORT")))
+(defn port []
+  (Integer/parseInt (on! "PORT")))
 
-(defn get-db-config []
-  (let [user (bring! "DB_USER")
-        password (bring! "DB_PASSWORD")
-        dbname (bring! "DB_NAME")
-        host (bring! "DB_HOST")
-        dbtype (bring! "DB_TYPE")]
+(defn psql-cfg []
+  (let [user (on! "DB_USER")
+        password (on! "DB_PASSWORD")
+        dbname (on! "DB_NAME")
+        host (on! "DB_HOST")
+        dbtype (on! "DB_TYPE")]
     (if (str/starts-with? host "/cloudsql/")
       (let [instance-name (str/replace host "/cloudsql/" "")]
         {:jdbcUrl (str "jdbc:postgresql:///" dbname
@@ -34,10 +36,15 @@
       {:dbtype dbtype
        :dbname dbname
        :host host
-       :port (Integer/parseInt (bring! "DB_PORT"))
+       :port (Integer/parseInt (on! "DB_PORT"))
        :user user
        :password password})))
 
-(defn get-llm-config []
-  {:ai-api-key (bring! "LLM_API_KEY")
-   :ai-model (bring! "LLM_MODEL")})
+(defn psql-mig-cfg []
+  {:store :database
+   :migration-dir "migrations"
+   :db (psql-cfg)})
+
+(defn llm-cfg []
+  {:ai-api-key (on! "LLM_API_KEY")
+   :ai-model (on! "LLM_MODEL")})

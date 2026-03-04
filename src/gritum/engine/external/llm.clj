@@ -13,8 +13,8 @@
         (println "Could not even list models. Error:" (:body (ex-data e)))))))
 
 (comment
-  (require '[gritum.engine.configs :as configs])
-  (get-all-models (:ai-api-key (configs/get-llm-config))))
+  (require '[gritum.engine.config :as configs])
+  (get-all-models (:ai-api-key (configs/llm-cfg))))
 
 (defn get-prompt [file]
   (let [path (str "prompts/" file)]

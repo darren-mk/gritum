@@ -53,15 +53,15 @@
           api-keys (db.api-key/list-by-client ds client-id)]
       (resp/ok api-keys))))
 
-(defn app [{:keys [ds]}]
-  (let [auth-mw (mw/wrap-api-key-auth ds)]
+(defn app [db-sql]
+  (let [auth-mw (mw/wrap-api-key-auth db-sql)]
     (ring/ring-handler
      (ring/router
       [(route.web/pages [mw/wrap-session
                          mw/content-type-html
                          mw/wrap-hiccup])
        (route.web/hypermedia [mw/wrap-session
-                              mw/read-body] ds)
+                              mw/read-body] db-sql)
        ["/openapi.json"
         {:get {:no-doc true
                :handler (openapi/create-openapi-handler)}}]
@@ -78,10 +78,10 @@
         ["/auth" {:middleware [mw/wrap-require-auth]}
          ["/api-keys" {:get {:summary "returns api keys for the client"
                              :responses {200 {:body [:sequential dom/ApiKey]}}
-                             :handler (list-api-keys-handler ds)}
+                             :handler (list-api-keys-handler db-sql)}
                        :post {:summary "create a api key for the client"
                               :response {200 {:body [:map [:message :string [:api_key :string]]]}}
-                              :handler (create-api-key-handler ds)}}]
+                              :handler (create-api-key-handler db-sql)}}]
          ["/me" {:get me-handler}]
          ["/logout" {:post logout-handler}]]]]
       {:data {:middleware [mw/wrap-exception

@@ -13,8 +13,8 @@
     (rules/pipeline (vec (concat @le-costs @cd-costs)))))
 
 (comment
-  (require '[gritum.engine.configs :as configs])
-  (let [{:keys [ai-api-key ai-model]} (configs/get-llm-config)]
+  (require '[gritum.engine.config :as configs])
+  (let [{:keys [ai-api-key ai-model]} (configs/llm-cfg)]
     (process! ai-api-key ai-model "data/le-a.pdf" "data/cd-a.pdf"))
   ;;=> [{:category :discount-points,
   ;;     :le-amount nil,
