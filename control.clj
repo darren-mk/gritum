@@ -114,6 +114,7 @@
 (defn -main [& args]
   (let [[task-str] args]
     (assert task-str "❌ Task is required.")
+    (b/shell "clj -M:test")
     (let [task (keyword task-str)
           cfg (get-config)]
       (case task
