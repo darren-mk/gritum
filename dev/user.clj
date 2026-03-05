@@ -1,12 +1,13 @@
 (ns user
   (:require
    [integrant.repl :as ir]
-   [gritum.web.core :as w]
+   [gritum.system :as system]
    [gritum.db.migrate :as mig]
    [malli.dev :as mdev]
    [malli.dev.pretty :as pretty]))
 
-(ir/set-prep! (fn [] (w/system-config)))
+(ir/set-prep!
+ system/system-config)
 
 (defn in []
   (mdev/start!
