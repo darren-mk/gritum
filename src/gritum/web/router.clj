@@ -1,8 +1,7 @@
 (ns gritum.web.router
   (:require
    [gritum.web.middleware :as mw]
-   [gritum.core :as core]
-   [gritum.db.client :as db.client]
+   [gritum.config :as config]
    [gritum.db.api-key :as db.api-key]
    [gritum.frontend.routes :as route.web]
    [reitit.coercion.malli :as rcmal]
@@ -11,23 +10,13 @@
    [ring.middleware.multipart-params :as multp]
    [ring.middleware.params :as midp]
    [ring.util.http-response :as resp]
-   [taoensso.timbre :as log]
    [gritum.domain.model :as dom]))
 
 (defn- handle-health [_]
   {:status 200
    :body {:status "up"
-          :version core/version
+          :version config/version
           :timestamp (.toString (java.time.Instant/now))}})
-
-(defn login-handler [ds]
-  (fn [{:keys [body] :as _req}]
-    (let [{:keys [email password]} body
-          client (db.client/authenticate ds email password)]
-      (if client
-        (-> (resp/ok client)
-            (assoc :session {:identity (:id client)}))
-        (resp/unauthorized {:error "Invalid email or password"})))))
 
 (defn logout-handler [_req]
   (-> (resp/ok {:message "Logged out"})

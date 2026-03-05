@@ -6,6 +6,8 @@
 (def Env
   [:enum :prod :local])
 
+(def version "0.1.0-SNAPSHOT")
+
 (defn- on! [k]
   (let [v (System/getenv k)]
     (if (str/blank? v)

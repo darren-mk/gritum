@@ -3,7 +3,7 @@
 
 (def lib 'bitem/gritum-engine)
 (def version "1.0.0")
-(def main 'gritum.api.core)
+(def main 'gritum.core)
 (def class-dir "target/classes")
 (def basis (b/create-basis {:project "deps.edn"}))
 (def uber-file (format "target/%s-%s-standalone.jar" (name lib) version))

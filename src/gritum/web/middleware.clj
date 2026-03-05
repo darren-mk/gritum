@@ -88,20 +88,6 @@
         (let [resp (handler req)]
           (if resp (update resp :headers merge headers) resp))))))
 
-(defn wrap-dashboard-cors [handler]
-  (fn [req]
-    (let [origin (get-in req [:headers "origin"])
-          headers {"Access-Control-Allow-Origin" origin
-                   "Access-Control-Allow-Methods"
-                   "GET, POST, PUT, DELETE, OPTIONS"
-                   "Access-Control-Allow-Headers"
-                   "Content-Type, Authorization, x-api-key"
-                   "Access-Control-Allow-Credentials" "true"}]
-      (if (= (:request-method req) :options)
-        {:status 200 :headers headers :body ""}
-        (let [resp (handler req)]
-          (if resp (update resp :headers merge headers) resp))))))
-
 (defn wrap-api-key-auth [ds]
   (fn [handler]
     (fn [request]

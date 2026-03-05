@@ -95,7 +95,7 @@
 (defn migrate [{:keys [env db]}]
   (case env
     :local (do (println "🏠 running local migrations...")
-               (b/shell "clojure" "-M:migrate"))
+               (b/shell "clojure" "-M:run" "migrate"))
     :prod (let [{:keys [dbname user password type]} db]
             (println "🏠 running prod migrations via Proxy...")
             (b/shell {:extra-env {"DB_TYPE" type
@@ -105,7 +105,7 @@
                                   "DB_PASSWORD" password
                                   "DB_HOST" "127.0.0.1"
                                   "DB_PORT" "5433"}}
-                     "clojure" "-M:migrate"))))
+                     "clojure" "-M:run" "migrate"))))
 
 (defn completion-msg [task]
   (str "🚀 *" (name task) "*"
