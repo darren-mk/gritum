@@ -1,4 +1,4 @@
-(ns gritum.api.middleware
+(ns gritum.web.middleware
   (:require
    [clojure.string :as cstr]
    [gritum.domain.model :as dom]

@@ -1,7 +1,7 @@
 (ns user
   (:require
    [integrant.repl :as ir]
-   [gritum.api.core :as w]
+   [gritum.web.core :as w]
    [gritum.db.migrate :as mig]
    [malli.dev :as mdev]
    [malli.dev.pretty :as pretty]))

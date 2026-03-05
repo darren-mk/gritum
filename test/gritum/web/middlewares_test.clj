@@ -1,7 +1,7 @@
-(ns gritum.api.middlewares-test
+(ns gritum.web.middlewares-test
   (:require
    [clojure.test :refer [deftest is testing]]
-   [gritum.api.middleware :as sut]
+   [gritum.web.middleware :as sut]
    [jsonista.core :as json]))
 
 (deftest inject-headers-in-resp-test

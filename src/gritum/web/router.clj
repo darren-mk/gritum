@@ -1,6 +1,6 @@
-(ns gritum.api.router
+(ns gritum.web.router
   (:require
-   [gritum.api.middleware :as mw]
+   [gritum.web.middleware :as mw]
    [gritum.core :as core]
    [gritum.db.client :as db.client]
    [gritum.db.api-key :as db.api-key]

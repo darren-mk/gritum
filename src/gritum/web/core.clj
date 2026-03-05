@@ -1,9 +1,9 @@
-(ns gritum.api.core
+(ns gritum.web.core
   (:gen-class)
   (:require
    [integrant.core :as ig]
    [org.httpkit.server :as http]
-   [gritum.api.router :as router]
+   [gritum.web.router :as router]
    [gritum.db.core]
    [gritum.config :as config]
    [taoensso.timbre :as log]))
