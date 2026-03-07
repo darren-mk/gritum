@@ -1,8 +1,12 @@
 (ns gritum.web.middlewares-test
   (:require
-   [clojure.test :refer [deftest is testing]]
+   [clojure.test :refer [deftest is testing use-fixtures]]
    [gritum.web.middleware :as sut]
-   [jsonista.core :as json]))
+   [jsonista.core :as json]
+   [gritum.helper :as helper]))
+
+(use-fixtures :once
+  (fn [f] (helper/inst) (f)))
 
 (deftest inject-headers-in-resp-test
   (testing "should add application/json Content-Type header to valid responses"

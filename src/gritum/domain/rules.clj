@@ -28,19 +28,18 @@
                                 (reduce condense {}))
         le-section-a-costs (->> costs
                                 (filter-by :le :a)
-                                (reduce condense {}))
-        violations (reduce (fn [acc [category amount]]
-                             (let [le-amt (get le-section-a-costs category)]
-                               (when (or (not le-amt)
-                                         (< le-amt amount))
-                                 (conj acc
-                                       {:rule :zero-tolerance
-                                        :category category
-                                        :le-amount le-amt
-                                        :cd-amount amount
-                                        :related-costs (filterv #(= (:category %) category) costs)}))))
-                           [] cd-section-a-costs)]
-    violations))
+                                (reduce condense {}))]
+    (reduce (fn [acc [category amount]]
+              (let [le-amt (get le-section-a-costs category)]
+                (when (or (not le-amt)
+                          (< le-amt amount))
+                  (conj acc
+                        {:rule :rule/zero-tolerance
+                         :category category
+                         :le-amount le-amt
+                         :cd-amount amount
+                         :related-costs (filterv #(= (:category %) category) costs)}))))
+            [] cd-section-a-costs)))
 
 (defn pipeline
   {:malli/schema [:=> [:cat [:vector Cost]]

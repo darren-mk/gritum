@@ -83,9 +83,13 @@
 (def Costs
   [:sequential Cost])
 
+(def Rule
+  [:enum
+   :rule/zero-tolerance])
+
 (def Violation
   [:map
-   [:rule :keyword]
+   [:rule Rule]
    [:category Category]
    [:le-amount :double]
    [:cd-amount :double]

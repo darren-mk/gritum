@@ -4,39 +4,39 @@
    [gritum.system :as system]
    [gritum.db.migrate :as mig]
    [malli.dev :as mdev]
-   [malli.dev.pretty :as pretty]))
+   [malli.dev.pretty :as mpret]))
 
 (ir/set-prep!
  system/system-config)
 
-(defn in []
+(defn inst []
   (mdev/start!
-   {:report (pretty/reporter)}))
+   {:report (mpret/reporter)}))
 
-(defn un []
+(defn unst []
   (mdev/stop!))
 
-(defn go []
-  (in)
+(defn start []
+  (inst)
   (ir/go))
 
-(defn no []
+(defn stop []
   (ir/halt))
 
-(defn re []
+(defn restart []
   (ir/reset))
 
-(defn cm [s]
+(defn create-migration [s]
   (mig/create s))
 
-(defn rm []
+(defn run-migrations []
   (mig/run))
 
 (comment
-  (in)
-  (un)
-  (go)
-  (no)
-  (re)
-  (cm "some-name")
-  (rm))
+  (inst)
+  (unst)
+  (start)
+  (stop)
+  (restart)
+  (create-migration "some-name")
+  (run-migrations))

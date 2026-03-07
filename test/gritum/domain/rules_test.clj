@@ -4,10 +4,10 @@
    [gritum.domain.model :refer [Costs]]
    [gritum.domain.rules :as sut]
    [malli.core :as m]
-   [user :refer [in]]))
+   [gritum.helper :as helper]))
 
 (use-fixtures :once
-  (fn [f] (in) (f)))
+  (fn [f] (helper/inst) (f)))
 
 (def sample-cost-1
   {:section :a
@@ -73,7 +73,7 @@
 
 (deftest rule-zero-tolerance-test
   (testing "identifies zero tolerance violations"
-    (is (= [{:rule :zero-tolerance
+    (is (= [{:rule :rule/zero-tolerance
              :category :application-fee
              :le-amount 10.0
              :cd-amount 20.0
@@ -82,7 +82,7 @@
 
 (deftest pipeline-test
   (testing "applies all rules"
-    (is (= [{:rule :zero-tolerance
+    (is (= [{:rule :rule/zero-tolerance
              :category :application-fee
              :le-amount 10.0
              :cd-amount 20.0
